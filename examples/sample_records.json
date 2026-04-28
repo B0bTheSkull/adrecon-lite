@@ -1,0 +1,66 @@
+[
+  {
+    "sAMAccountName": "alice",
+    "distinguishedName": "CN=Alice,OU=Users,DC=lab,DC=local",
+    "userAccountControl": 512,
+    "description": "Standard user account"
+  },
+  {
+    "sAMAccountName": "svc_sql",
+    "distinguishedName": "CN=svc_sql,OU=Service Accounts,DC=lab,DC=local",
+    "userAccountControl": 512,
+    "servicePrincipalName": ["MSSQLSvc/sql01.lab.local:1433"],
+    "description": "SQL service account"
+  },
+  {
+    "sAMAccountName": "legacy_app",
+    "distinguishedName": "CN=legacy_app,OU=Service Accounts,DC=lab,DC=local",
+    "userAccountControl": 4194816,
+    "description": "Legacy app — pre-auth disabled for migration testing"
+  },
+  {
+    "sAMAccountName": "old_admin",
+    "distinguishedName": "CN=old_admin,OU=Admins,DC=lab,DC=local",
+    "userAccountControl": 66048,
+    "description": "Domain admin from initial install — passwd never expires"
+  },
+  {
+    "sAMAccountName": "broken_kiosk",
+    "distinguishedName": "CN=broken_kiosk,OU=Kiosks,DC=lab,DC=local",
+    "userAccountControl": 544,
+    "description": "Kiosk login — password not required"
+  },
+  {
+    "sAMAccountName": "DC01$",
+    "distinguishedName": "CN=DC01,OU=Domain Controllers,DC=lab,DC=local",
+    "userAccountControl": 532480,
+    "description": "Domain controller — expected to have unconstrained delegation"
+  },
+  {
+    "sAMAccountName": "fileserver$",
+    "distinguishedName": "CN=fileserver,OU=Servers,DC=lab,DC=local",
+    "userAccountControl": 4096,
+    "msDS-AllowedToDelegateTo": ["cifs/dc01.lab.local"],
+    "description": "File server with constrained delegation"
+  },
+  {
+    "sAMAccountName": "iis_pool$",
+    "distinguishedName": "CN=iis_pool,OU=Servers,DC=lab,DC=local",
+    "userAccountControl": 16781312,
+    "msDS-AllowedToDelegateTo": ["http/intranet.lab.local"],
+    "description": "IIS app pool with constrained delegation + protocol transition"
+  },
+  {
+    "sAMAccountName": "rbcd_target$",
+    "distinguishedName": "CN=rbcd_target,OU=Servers,DC=lab,DC=local",
+    "userAccountControl": 4096,
+    "msDS-AllowedToActOnBehalfOfOtherIdentity": "binary-blob-here",
+    "description": "Server with RBCD configured"
+  },
+  {
+    "sAMAccountName": "disabled_old",
+    "distinguishedName": "CN=disabled_old,OU=Disabled,DC=lab,DC=local",
+    "userAccountControl": 4194818,
+    "description": "Disabled — should not produce findings even with bad flags"
+  }
+]
