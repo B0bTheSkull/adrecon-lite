@@ -1,0 +1,80 @@
+## adrecon --help
+
+usage: adrecon [-h] [--version] (--server SERVER | --offline) [--user USER]
+               [--password PASSWORD] [--base-dn BASE_DN] [--ssl]
+               [--records RECORDS] [--json] [--no-color]
+
+Lightweight Active Directory enumeration and dangerous-config detector.
+
+options:
+  -h, --help           show this help message and exit
+  --version            show program's version number and exit
+  --server SERVER      LDAP server URI, e.g. ldap://dc.lab.local
+  --offline            Read records from --records JSON instead of querying
+                       live AD
+  --user USER          Bind user (e.g. CORP\\analyst or CN=analyst,...)
+  --password PASSWORD  Bind password (omit to be prompted)
+  --base-dn BASE_DN    Search base DN, e.g. DC=lab,DC=local
+  --ssl                Use LDAPS (port 636)
+  --records RECORDS    Path to JSON records file (with --offline)
+  --json               Emit JSON output
+  --no-color           Disable ANSI color
+
+---
+
+## adrecon --offline --records examples/sample_records.json --no-color
+## (offline scan against bundled sample data — 10 records, real tool output)
+
+ADRecon-Lite
+Records inspected: 10  |  Findings: 8
+
+────────────────────────────────────────────────────────────────────────────────
+[CRITICAL] Password not required
+  account: broken_kiosk
+  dn:      CN=broken_kiosk,OU=Kiosks,DC=lab,DC=local
+  detail:  PASSWD_NOTREQD set — account can authenticate with empty password
+────────────────────────────────────────────────────────────────────────────────
+[    HIGH] AS-REP roasting candidate
+  account: legacy_app
+  dn:      CN=legacy_app,OU=Service Accounts,DC=lab,DC=local
+  detail:  DONT_REQ_PREAUTH set — TGT can be requested without pre-auth and offline cracked
+────────────────────────────────────────────────────────────────────────────────
+[    HIGH] Constrained delegation with protocol transition
+  account: iis_pool$
+  dn:      CN=iis_pool,OU=Servers,DC=lab,DC=local
+  detail:  Allowed to delegate to: http/intranet.lab.local
+  targets: ['http/intranet.lab.local']
+  protocol_transition: True
+────────────────────────────────────────────────────────────────────────────────
+[    HIGH] Kerberoastable user
+  account: svc_sql
+  dn:      CN=svc_sql,OU=Service Accounts,DC=lab,DC=local
+  detail:  User account has SPN(s) registered: MSSQLSvc/sql01.lab.local:1433
+  spns: ['MSSQLSvc/sql01.lab.local:1433']
+────────────────────────────────────────────────────────────────────────────────
+[    HIGH] Resource-based constrained delegation
+  account: rbcd_target$
+  dn:      CN=rbcd_target,OU=Servers,DC=lab,DC=local
+  detail:  msDS-AllowedToActOnBehalfOfOtherIdentity is populated — RBCD attack vector
+────────────────────────────────────────────────────────────────────────────────
+[  MEDIUM] Constrained delegation
+  account: fileserver$
+  dn:      CN=fileserver,OU=Servers,DC=lab,DC=local
+  detail:  Allowed to delegate to: cifs/dc01.lab.local
+  targets: ['cifs/dc01.lab.local']
+  protocol_transition: False
+────────────────────────────────────────────────────────────────────────────────
+[  MEDIUM] Unconstrained delegation (DC — expected)
+  account: DC01$
+  dn:      CN=DC01,OU=Domain Controllers,DC=lab,DC=local
+  detail:  TRUSTED_FOR_DELEGATION set — captured TGTs from any user authenticating to this host can be reused anywhere
+────────────────────────────────────────────────────────────────────────────────
+[     LOW] Password never expires
+  account: old_admin
+  dn:      CN=old_admin,OU=Admins,DC=lab,DC=local
+  detail:  DONT_EXPIRE_PASSWORD set on a user account
+────────────────────────────────────────────────────────────────────────────────
+
+Summary: [CRITICAL] 1  [    HIGH] 4  [  MEDIUM] 2  [     LOW] 1
+
+Exit code: 1  (at least one critical/high finding)
