@@ -32,6 +32,7 @@ def _load_records_live(args: argparse.Namespace) -> list[dict]:
         password=password,
         base_dn=args.base_dn,
         use_ssl=args.ssl,
+        insecure=args.insecure,
     )
 
 
@@ -54,6 +55,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--password", help="Bind password (omit to be prompted)")
     p.add_argument("--base-dn", help="Search base DN, e.g. DC=lab,DC=local")
     p.add_argument("--ssl", action="store_true", help="Use LDAPS (port 636)")
+    p.add_argument(
+        "--insecure",
+        action="store_true",
+        help="Skip LDAPS certificate validation (unsafe; for self-signed lab DCs only)",
+    )
     p.add_argument("--records", type=Path, help="Path to JSON records file (with --offline)")
     p.add_argument("--json", action="store_true", help="Emit JSON output")
     p.add_argument("--no-color", action="store_true", help="Disable ANSI color")
